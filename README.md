@@ -101,3 +101,19 @@ Only investigate websites and systems that you have permission to test. Do not u
 Status: Working Prototype
 
 The project is currently focused on website reconnaissance and basic OSINT/security analysis.
+## 📸 Screenshots
+
+### Dashboard
+![OSINT Dashboard](screenshots/dashboard.png)
+
+### Target Information
+![Target Information](screenshots/website-info.png)
+
+### Security Headers
+![Security Headers](screenshots/security-headers.png)
+
+### Response Headers
+![Response Headers](screenshots/response-headers.png)
+
+### Website Details
+![Investigation Report](screenshots/Investigation-report.png)
