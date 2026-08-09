@@ -1,5 +1,72 @@
 import pandas as pd
-import streamlit as st
+try:
+    import streamlit as st
+except Exception:
+    # Minimal fallback implementation of streamlit API used in this script
+    class _TextColumn:
+        def __init__(self, label, width=None):
+            self.label = label
+            self.width = width
+
+    class _ColumnConfig:
+        TextColumn = _TextColumn
+
+    class _StubStreamlit:
+        column_config = _ColumnConfig()
+
+        def set_page_config(self, **kwargs):
+            pass
+
+        def title(self, text):
+            print(text)
+
+        def write(self, *args, **kwargs):
+            print(*args)
+
+        def divider(self):
+            print("---")
+
+        def text_input(self, label, placeholder=None):
+            print(f"INPUT: {label} ({placeholder})")
+            return ""
+
+        def button(self, label):
+            print(f"BUTTON: {label}")
+            return False
+
+        def subheader(self, text):
+            print(text)
+
+        def image(self, data, caption=None, use_container_width=False, width=None):
+            print(f"[IMAGE] {caption or ''}")
+
+        def success(self, text):
+            print("SUCCESS:", text)
+
+        def warning(self, text):
+            print("WARNING:", text)
+
+        def info(self, text):
+            print("INFO:", text)
+
+        def error(self, text):
+            print("ERROR:", text)
+
+        def dataframe(self, data, **kwargs):
+            print("DATAFRAME:")
+            print(data)
+
+        def bar_chart(self, data):
+            print("BARCHART:")
+            print(data)
+
+        def caption(self, text):
+            print("CAPTION:", text)
+
+        def download_button(self, *args, **kwargs):
+            print("DOWNLOAD:", args)
+
+    st = _StubStreamlit()
 import requests
 import socket
 import whois
@@ -21,7 +88,7 @@ st.divider()
 
 st.subheader("🌐 Website Scanner")
 
-target   = st.text_input(
+target = st.text_input(
     "Target Website",
     placeholder="https://example.com",
     help="Enter a website URL to analyze."
