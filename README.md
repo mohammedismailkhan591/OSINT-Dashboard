@@ -104,16 +104,25 @@ The project is currently focused on website reconnaissance and basic OSINT/secur
 ## 📸 Screenshots
 
 ### Dashboard
+
 ![Dashboard](./Screenshorts/dashboard.png)
 
+### Target Information
+
+
+![Website Information](./Screenshorts/website-info.png)
+
 ### Investigation Report
+
 ![Investigation Report](./Screenshorts/investigation-report.png)
 
 ### Response Headers
+
+
 ![Response Headers](./Screenshorts/response-header.png)
 
-### Security Headers
-![Security Headers](./Screenshorts/security-header.png)
 
-### Website Information
-![Website Information](./Screenshorts/website-info.png)
+### Security Headers
+
+
+![Security Headers](./Screenshorts/security-header.png)
