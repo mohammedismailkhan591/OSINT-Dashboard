@@ -1,12 +1,24 @@
-import pandas as pd
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
 import streamlit as st
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
+try:
+    import whois
+except ImportError:
+    whois = None
 import socket
-import whois
 import re
 from urllib.parse import urljoin
 from datetime import datetime
-from playwright.sync_api import sync_playwright
+try:
+    from playwright.sync_api import sync_playwright
+except ImportError:
+    sync_playwright = None
 
 
 
