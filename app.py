@@ -103,13 +103,11 @@ if st.button("🔍 Start Investigation", use_container_width=True):
         # =========================================================
         # WEBSITE SCREENSHOT
         # =========================================================
-
         st.subheader("🖼️ Website Screenshot")
 
         try:
-
             with sync_playwright() as p:
-           browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(headless=True)
                 page = browser.new_page(
                     viewport={"width": 1280, "height": 720}
                 )
@@ -129,9 +127,7 @@ if st.button("🔍 Start Investigation", use_container_width=True):
                     width="stretch"
                 )
 
-
         except Exception as error:
-
             st.warning(
                 f"Website screenshot could not be captured: {error}"
             )
