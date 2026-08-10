@@ -3,6 +3,12 @@ import requests
 import pandas as pd
 import socket
 import whois
+import subprocess
+
+subprocess.run(
+    ["python", "-m", "playwright", "install", "chromium"],
+    check=True
+)
 
 from datetime import datetime
 from urllib.parse import urljoin
