@@ -3,13 +3,6 @@ import requests
 import pandas as pd
 import socket
 import whois
-import subprocess
-
-subprocess.run(
-    ["python", "-m", "playwright", "install", "chromium"],
-    check=True
-)
-
 from datetime import datetime
 from urllib.parse import urljoin
 from playwright.sync_api import sync_playwright
@@ -116,9 +109,10 @@ if st.button("🔍 Start Investigation", use_container_width=True):
         try:
 
             with sync_playwright() as p:
-
                 browser = p.chromium.launch(
-                    headless=True
+                    headless=True,
+                    executable_path="/usr/bin/chromium",
+                    args=["--no-sandbox"]
                 )
 
                 page = browser.new_page(
