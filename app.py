@@ -109,36 +109,27 @@ if st.button("🔍 Start Investigation", use_container_width=True):
         try:
 
             with sync_playwright() as p:
-                browser = p.chromium.launch(
-                    headless=True,
-                    executable_path="/usr/bin/chromium",
-                    args=["--no-sandbox"]
-                )
+                browser = p.chromium.launch(headless=True)
 
                 page = browser.new_page(
-                    viewport={
-                        "width": 1280,
-                        "height": 720
-                    }
+                    viewport={"width": 1280, "height": 720}
                 )
 
                 page.goto(
                     response.url,
                     wait_until="domcontentloaded",
-                    timeout=15000
+                    timeout=30000
                 )
 
-                screenshot = page.screenshot(
-                    full_page=True
-                )
-
+                screenshot = page.screenshot(full_page=True)
                 browser.close()
 
-            st.image(
-                screenshot,
-                caption="Website Preview",
-                use_container_width=True
-            )
+                st.image(
+                    screenshot,
+                    caption="Website Preview",
+                    width="stretch"
+                )
+
 
         except Exception as error:
 
@@ -158,27 +149,31 @@ if st.button("🔍 Start Investigation", use_container_width=True):
         with col1:
 
             if favicon_response and favicon_response.ok:
-
+               
                 st.image(
                     favicon_response.content,
                     caption="Website Logo",
                     width=100
+
                 )
 
             else:
 
                 st.info("No logo")
 
+
         with col2:
 
             st.markdown("### 🌐 Website")
+
             st.write(hostname)
             st.caption("Website identity and favicon")
 
 
         # Website status
-
+       
         if response.status_code == 200:
+
 
             st.success("Website is reachable")
 
@@ -655,13 +650,80 @@ if st.button("🔍 Start Investigation", use_container_width=True):
 
         scan_time = (
             datetime.now() - start_time
+
+
+
+
         ).total_seconds()
 
 
-        # =========================================================
-        # DOWNLOAD REPORT
+# =========================================================
+        # FORMAT RESPONSE HEADERS FOR REPORT
         # =========================================================
 
+        response_headers_report_lines = []
+
+        # Convert Age to readable time
+        age_found = False
+
+        for key, value in response.headers.items():
+
+            if key.lower() == "age":
+
+                age_found = True
+
+                try:
+                    age_seconds = int(value)
+
+                    days = age_seconds // 86400
+                    hours = (age_seconds % 86400) // 3600
+                    minutes = (age_seconds % 3600) // 60
+                    seconds = age_seconds % 60
+
+                    if days > 0:
+                        display_value = (
+                            f"{days} day(s), "
+                            f"{hours} hour(s), "
+                            f"{minutes} min, "
+                            f"{seconds} sec"
+                        )
+
+                    elif hours > 0:
+                        display_value = (
+                            f"{hours} hour(s), "
+                            f"{minutes} min, "
+                            f"{seconds} sec"
+                        )
+
+                    else:
+                        display_value = (
+                            f"{minutes} min, "
+                            f"{seconds} sec"
+                        )
+
+                except ValueError:
+                    display_value = value
+
+            else:
+
+                display_value = value
+
+            response_headers_report_lines.append(
+                f"{key}: {display_value}"
+            )
+
+
+        if not age_found:
+
+            response_headers_report_lines.insert(
+                0,
+                "Age: Not provided by server"
+            )
+
+
+        response_headers_report = "\n".join(
+            response_headers_report_lines
+        )
         report = f"""
 ========================================
        OSINT INVESTIGATION REPORT
@@ -684,9 +746,74 @@ Content Type: {content_type}
 Page Title: {title}
 Response Size: {len(response.content):,} bytes
 
+RESPONSE HEADERS
+----------------------------------------
+
+Caching & Age
+----------------------------------------
+{chr(10).join(
+    line for line in response_headers_report_lines
+    if line.lower().startswith((
+        "age:",
+        "cache-control:",
+        "edge-cache-control:",
+        "x-cache:"
+    ))
+)}
+
+Server & Connection
+----------------------------------------
+{chr(10).join(
+    line for line in response_headers_report_lines
+    if line.lower().startswith((
+        "server:",
+        "connection:",
+        "transfer-encoding:",
+        "via:"
+    ))
+)}
+
+Content & Request Behavior
+----------------------------------------
+{chr(10).join(
+    line for line in response_headers_report_lines
+    if line.lower().startswith((
+        "content-type:",
+        "content-length:",
+        "vary:",
+        "date:",
+        "alt-svc:"
+    ))
+)}
+
+Security
+----------------------------------------
+{chr(10).join(
+    line for line in response_headers_report_lines
+    if line.lower().startswith((
+        "strict-transport-security:",
+        "content-security-policy:",
+        "x-content-type-options:",
+        "x-frame-options:",
+        "referrer-policy:",
+        "permissions-policy:"
+    ))
+)}
+
+CDN / Cloud Infrastructure
+----------------------------------------
+{chr(10).join(
+    line for line in response_headers_report_lines
+    if line.lower().startswith((
+        "x-amz-",
+        "x-amzn-",
+        "cf-",
+        "x-cdn-"
+    ))
+)}
 SECURITY
 ----------------------------------------
-security Header Score: {security_score}/3
+Security Header Score: {security_score}/3
 HTTPS: {https_status}
 Strict-Transport-Security: {hsts_status}
 Content-Security-Policy: {csp_status}
@@ -703,40 +830,7 @@ SCAN
 ----------------------------------------
 Scan Time: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 Scan Duration: {scan_time:.2f} seconds
-
-RESPONSE HEADERS
-----------------------------------------
-
 """
-
-
-        for key, value in response.headers.items():
-
-            if key.lower() == "age":
-
-                try:
-
-                    age_seconds = int(value)
-
-                    minutes = age_seconds // 60
-                    seconds = age_seconds % 60
-
-                    report += (
-                        f"Age: {minutes} minutes "
-                        f"{seconds} seconds\n"
-                    )
-
-                except ValueError:
-
-                    report += (
-                        f"Age: {value}\n"
-                    )
-
-            else:
-
-                report += (
-                    f"{key}: {value}\n"
-                )
 
 
         # =========================================================
@@ -750,7 +844,6 @@ RESPONSE HEADERS
             "Download the full results as a text report."
         )
 
-
         st.download_button(
             label="📥 Download Investigation Report",
             data=report,
@@ -759,24 +852,18 @@ RESPONSE HEADERS
             use_container_width=True
         )
 
-
         st.caption(
-            f"⏱️ Scan completed in "
-            f"{scan_time:.2f} seconds"
+            f"⏱️ Scan completed in {scan_time:.2f} seconds"
         )
 
-
         st.divider()
-
 
         st.info(
             "⚠️ Use this prototype only with public information "
             "and systems you are authorized to investigate."
         )
 
-
         st.divider()
-
 
         st.caption(
             "🔎 OSINT Investigation Prototype • "
