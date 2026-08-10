@@ -107,7 +107,11 @@ if st.button("🔍 Start Investigation", use_container_width=True):
 
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser = p.chromium.launch(
+                    headless=True,
+                    executable_path="/usr/bin/chromium"
+                )
+
                 page = browser.new_page(
                     viewport={"width": 1280, "height": 720}
                 )
